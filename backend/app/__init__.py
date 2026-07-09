@@ -7,6 +7,7 @@ from app.extensions.bcrypt import bcrypt
 from app.config.config import Config
 from app.extensions.migrate import migrate
 from app.routes.auth import auth_bp
+from app.routes.project import project_bp
 
 
 def create_app():
@@ -21,6 +22,7 @@ def create_app():
     bcrypt.init_app(app)
     CORS(app)
     app.register_blueprint(auth_bp)
+    app.register_blueprint(project_bp)
 
     # Health Check Route
     @app.route("/")

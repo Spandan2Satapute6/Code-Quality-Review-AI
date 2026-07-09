@@ -1,6 +1,5 @@
 from flask import Blueprint, request
 from flask_jwt_extended import (
-    create_access_token,
     jwt_required,
     get_jwt_identity,
 )
@@ -54,19 +53,48 @@ def login():
     }, 200
 
 
-@auth_bp.route("/profile", methods=["GET"])
-@jwt_required()
-def profile():
+# ============================
+# Forgot Password
+# ============================
 
-    user_id = get_jwt_identity()
+@auth_bp.route("/forgot-password", methods=["POST"])
+def forgot_password():
 
-    user = User.query.get(int(user_id))
+    data = request.get_json()
 
-    if not user:
-        return {"message": "User not found"}, 404
+    token, error = AuthService.forgot_password(
+        data["email"]
+    )
+
+    if error:
+        return {"message": error}, 404
 
     return {
-        "id": user.id,
-        "name": user.name,
-        "email": user.email,
+        "message": "Reset token generated",
+        "reset_token": token,
     }, 200
+
+
+# ============================
+# Reset Password
+# ============================
+
+@auth_bp.route("/reset-password", methods=["POST"])
+def reset_password():
+
+    data = request.get_json()
+
+    error = AuthService.reset_password(
+        data["token"],
+        data["password"],
+    )
+
+    if error:
+        return {"message": error}, 400
+
+    return {
+        "message": "Password reset successful"
+    }, 200 
+
+
+

@@ -1,0 +1,1 @@
+"""API endpoint package for SmartERP v1."""

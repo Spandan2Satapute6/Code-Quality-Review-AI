@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "smarterp-backend"
+version = "1.0.0"
+description = "SmartERP FastAPI backend"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+	"fastapi>=0.115,<1.0",
+	"sqlalchemy>=2.0,<3.0",
+	"alembic>=1.13,<2.0",
+	"pydantic-settings>=2.6,<3.0",
+	"psycopg[binary]>=3.2,<4.0",
+	"python-dotenv>=1.0,<2.0",
+	"uvicorn[standard]>=0.30,<1.0",
+]
+
+[tool.setuptools]
+package-dir = {"" = "."}
+
+[tool.setuptools.packages.find]
+include = ["app*"]
