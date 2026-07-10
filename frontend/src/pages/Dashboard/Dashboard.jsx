@@ -1,64 +1,70 @@
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
+import { useState } from "react";
+import { uploadProject } from "../../services/projectService";
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
 
-  const handleLogout = () => {
-    logout();
-    navigate("/");
+  const [loading, setLoading] = useState(false);
+
+  const handleUpload = async (event) => {
+    const file = event.target.files[0];
+
+    if (!file) return;
+
+    try {
+      setLoading(true);
+
+      const result = await uploadProject(file);
+
+      console.log(result);
+
+      navigate("/review", {
+        state: result.data,
+      });
+
+    } catch (error) {
+      console.error(error);
+      alert("Upload failed.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
-
-      {/* Navbar */}
-      <div className="flex justify-between items-center px-8 py-5 border-b border-slate-800">
-        <div>
-          <h1 className="text-3xl font-bold">
-            Code Quality Review AI
-          </h1>
-          <p className="text-slate-400">
-            Welcome {user?.name || "User"} 👋
-          </p>
-        </div>
-
-        <button
-          onClick={handleLogout}
-          className="bg-red-600 hover:bg-red-700 px-5 py-2 rounded-lg"
-        >
-          Logout
-        </button>
-      </div>
+    <div className="text-white">
 
       {/* Dashboard Cards */}
-      <div className="grid md:grid-cols-4 gap-6 p-8">
+
+      <div className="grid md:grid-cols-4 gap-6">
 
         <div className="bg-slate-900 rounded-xl p-6 shadow-lg">
           <h2 className="text-lg font-semibold">Projects</h2>
-          <p className="text-5xl font-bold mt-4">0</p>
+          <p className="text-5xl font-bold mt-4">1</p>
         </div>
 
         <div className="bg-slate-900 rounded-xl p-6 shadow-lg">
           <h2 className="text-lg font-semibold">Reviews</h2>
-          <p className="text-5xl font-bold mt-4">0</p>
+          <p className="text-5xl font-bold mt-4">1</p>
         </div>
 
         <div className="bg-slate-900 rounded-xl p-6 shadow-lg">
           <h2 className="text-lg font-semibold">Issues</h2>
-          <p className="text-5xl font-bold mt-4">0</p>
+          <p className="text-5xl font-bold mt-4">AI</p>
         </div>
 
         <div className="bg-slate-900 rounded-xl p-6 shadow-lg">
           <h2 className="text-lg font-semibold">AI Score</h2>
-          <p className="text-5xl font-bold mt-4 text-green-400">100%</p>
+          <p className="text-5xl font-bold mt-4 text-green-400">
+            Ready
+          </p>
         </div>
 
       </div>
 
       {/* Upload Section */}
-      <div className="mx-8 bg-slate-900 rounded-xl p-8">
+
+      <div className="mt-8 bg-slate-900 rounded-xl p-8">
 
         <h2 className="text-2xl font-bold mb-4">
           Upload Your Project
@@ -68,9 +74,18 @@ export default function Dashboard() {
           Upload your project ZIP file for AI-powered code review.
         </p>
 
-        <button className="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-lg">
-          Upload Project
-        </button>
+        <label className="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-lg cursor-pointer inline-block">
+
+          {loading ? "Uploading..." : "Upload Project"}
+
+          <input
+            type="file"
+            accept=".zip"
+            hidden
+            onChange={handleUpload}
+          />
+
+        </label>
 
       </div>
 
