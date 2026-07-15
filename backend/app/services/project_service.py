@@ -5,6 +5,7 @@ from werkzeug.utils import secure_filename
 from app.services.code_scanner import CodeScanner
 from app.services.review_service import ReviewService
 from app.services.project_summary_service import ProjectSummaryService
+from app.services.report_aggregator_service import ReportAggregatorService
 
 
 class ProjectService:
@@ -66,11 +67,21 @@ class ProjectService:
         try:
             files = CodeScanner.scan_project(extract_folder)
 
-            print("Reviewing files with AI...")
+            print("Running Static Analysis...")
+
             review = ReviewService.review_project(files)
 
-            print("Generating Project Summary...")
+            print("Generating AI Project Summary...")
+
             project_summary = ProjectSummaryService.generate_summary(review)
+
+            print("Building Final Report...")
+
+            report = ReportAggregatorService.build_report(
+                project_name=filename,
+                review=review,
+                project_summary=project_summary
+            )
 
         except Exception as e:
             print("Scanner Error:", str(e))
@@ -78,18 +89,4 @@ class ProjectService:
 
         print("========== PROJECT UPLOAD SUCCESS ==========\n")
 
-        return {
-            "filename": filename,
-            "zip_path": zip_path,
-            "extract_path": extract_folder,
-            "total_files": len(files),
-            "files": [
-                {
-                    "filename": f["filename"],
-                    "path": f["path"]
-                }
-                for f in files
-            ],
-            "review": review,
-            "project_summary": project_summary
-        }, None
+        return report, None

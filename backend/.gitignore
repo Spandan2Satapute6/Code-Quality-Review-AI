@@ -1,0 +1,14 @@
+.env
+backend/.env
+
+.venv/
+backend/.venv/
+
+uploads/
+backend/uploads/
+
+extracted/
+backend/extracted/
+
+__pycache__/
+*.pyc

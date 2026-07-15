@@ -85,7 +85,17 @@ export default function FileCard({ file }) {
   }
 
   const totalIssues = pylintIssues.length + banditIssues.length;
+const aiScore = file.score || 0;
+const aiSeverity = file.severity || "Unknown";
+const aiSummary = file.summary || "No AI summary available.";
+const aiVerdict = file.verdict || "Pending";
 
+const aiIssues = file.issues || [];
+const aiSecurity = file.security || [];
+const aiPerformance = file.performance || [];
+const aiMaintainability = file.maintainability || [];
+const aiBestPractices = file.best_practices || [];
+const aiRecommendations = file.recommendations || [];
   return (
     <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-lg transition-all duration-200 hover:border-slate-700">
       {/* File Card Header Summary */}
@@ -174,6 +184,226 @@ export default function FileCard({ file }) {
       {/* Expandable Details Area */}
       {isExpanded && (
         <div className="border-t border-slate-800 bg-slate-950/60 p-5 space-y-6">
+          {/* ================= AI REVIEW ================= */}
+
+<div className="bg-slate-900 border border-slate-800 rounded-xl p-6">
+
+    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5 mb-6">
+
+        <div>
+
+            <h3 className="text-2xl font-bold text-white">
+                🤖 AI Code Review
+            </h3>
+
+            <p className="text-slate-400 mt-1">
+                AI-powered analysis generated using Llama 3.3
+            </p>
+
+        </div>
+
+        <SeverityBadge severity={aiSeverity} />
+
+    </div>
+
+    <div className="grid md:grid-cols-3 gap-5 mb-6">
+
+        <div className="bg-slate-950 rounded-xl border border-slate-800 p-5">
+
+            <p className="text-xs uppercase tracking-widest text-slate-500">
+                AI Score
+            </p>
+
+            <p className="text-5xl font-black text-green-400 mt-3">
+                {aiScore}
+            </p>
+
+        </div>
+
+        <div className="bg-slate-950 rounded-xl border border-slate-800 p-5">
+
+            <p className="text-xs uppercase tracking-widest text-slate-500">
+                Severity
+            </p>
+
+            <p className="text-3xl font-bold text-yellow-400 mt-3">
+                {aiSeverity}
+            </p>
+
+        </div>
+
+        <div className="bg-slate-950 rounded-xl border border-slate-800 p-5">
+
+            <p className="text-xs uppercase tracking-widest text-slate-500">
+                Verdict
+            </p>
+
+            <p className="text-2xl font-bold text-cyan-400 mt-3">
+                {aiVerdict}
+            </p>
+
+        </div>
+
+    </div>
+
+    <div className="bg-slate-950 border border-slate-800 rounded-xl p-5">
+
+        <h4 className="text-lg font-bold text-white mb-3">
+            Executive Summary
+        </h4>
+
+        <p className="text-slate-300 leading-7">
+            {aiSummary}
+        </p>
+
+    </div>
+
+    {aiIssues.length > 0 && (
+
+        <div className="mt-6">
+
+            <h4 className="text-lg font-bold text-white mb-4">
+                Issues Identified
+            </h4>
+
+            <div className="space-y-3">
+
+                {aiIssues.map((issue, index) => (
+
+                    <div
+                        key={index}
+                        className="bg-red-500/10 border border-red-500/20 rounded-lg p-4"
+                    >
+
+                        <p className="text-red-300">
+                            {issue}
+                        </p>
+
+                    </div>
+
+                ))}
+
+            </div>
+
+        </div>
+
+    )}
+
+    {aiRecommendations.length > 0 && (
+
+        <div className="mt-6">
+
+            <h4 className="text-lg font-bold text-white mb-4">
+                Recommendations
+            </h4>
+
+            <div className="space-y-3">
+
+                {aiRecommendations.map((item, index) => (
+
+                    <div
+                        key={index}
+                        className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-4"
+                    >
+
+                        <p className="text-emerald-300">
+                            {item}
+                        </p>
+
+                    </div>
+
+                ))}
+                {/* ================= AI Security ================= */}
+
+{aiSecurity.length > 0 && (
+  <div className="mt-6">
+    <h4 className="text-lg font-bold text-white mb-3">
+      🔒 Security Review
+    </h4>
+
+    <div className="space-y-2">
+      {aiSecurity.map((item, index) => (
+        <div
+          key={index}
+          className="bg-red-500/10 border border-red-500/20 rounded-lg p-3"
+        >
+          <p className="text-red-300">{item}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+)}
+
+{/* ================= AI Performance ================= */}
+
+{aiPerformance.length > 0 && (
+  <div className="mt-6">
+    <h4 className="text-lg font-bold text-white mb-3">
+      ⚡ Performance Review
+    </h4>
+
+    <div className="space-y-2">
+      {aiPerformance.map((item, index) => (
+        <div
+          key={index}
+          className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3"
+        >
+          <p className="text-blue-300">{item}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+)}
+
+{/* ================= AI Maintainability ================= */}
+
+{aiMaintainability.length > 0 && (
+  <div className="mt-6">
+    <h4 className="text-lg font-bold text-white mb-3">
+      🛠 Maintainability
+    </h4>
+
+    <div className="space-y-2">
+      {aiMaintainability.map((item, index) => (
+        <div
+          key={index}
+          className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-3"
+        >
+          <p className="text-yellow-300">{item}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+)}
+
+{/* ================= AI Best Practices ================= */}
+
+{aiBestPractices.length > 0 && (
+  <div className="mt-6">
+    <h4 className="text-lg font-bold text-white mb-3">
+      ⭐ Best Practices
+    </h4>
+
+    <div className="space-y-2">
+      {aiBestPractices.map((item, index) => (
+        <div
+          key={index}
+          className="bg-green-500/10 border border-green-500/20 rounded-lg p-3"
+        >
+          <p className="text-green-300">{item}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+)}
+
+            </div>
+
+        </div>
+
+    )}
+
+</div>
           {/* Radon Raw metrics */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 bg-slate-900/40 p-4 rounded-xl border border-slate-800/60">
             <div>
