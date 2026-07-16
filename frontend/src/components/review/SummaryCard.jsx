@@ -1,5 +1,6 @@
 import { CheckCircle2, AlertOctagon, Lightbulb, Trophy, Target } from "lucide-react";
 
+
 export default function SummaryCard({ summary }) {
   if (!summary) return null;
 

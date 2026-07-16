@@ -13,20 +13,22 @@ import {
   HelpCircle,
   Code
 } from "lucide-react";
-
 import MetricCard from "../../components/review/MetricCard";
 import AnalysisCard from "../../components/review/AnalysisCard";
 import IssueTable from "../../components/review/IssueTable";
 import FileCard from "../../components/review/FileCard";
 import SummaryCard from "../../components/review/SummaryCard";
-
+import DashboardCards from "../../components/review/DashboardCards";
+import AnalyticsCharts from "../../components/review/AnalyticsCharts";
 export default function ReviewResult() {
   const location = useLocation();
   const navigate = useNavigate();
 
   const data = location.state;
   const [activeTab, setActiveTab] = useState("overview");
-
+  const [searchTerm, setSearchTerm] = useState("");
+  const [severityFilter, setSeverityFilter] = useState("All");
+  const [sortBy, setSortBy] = useState("score");
   // Handle empty state gracefully
   if (!data) {
     return (
@@ -49,6 +51,57 @@ export default function ReviewResult() {
   }
 
   const filesList = data.review || [];
+
+  const filteredFiles = useMemo(() => {
+
+  const result = filesList.filter((file) => {
+
+    const matchesSearch =
+      file.filename
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
+
+    const matchesSeverity =
+      severityFilter === "All" ||
+      (file.severity || "")
+        .toLowerCase() === severityFilter.toLowerCase();
+
+    return matchesSearch && matchesSeverity;
+
+  });
+
+  result.sort((a, b) => {
+
+    if (sortBy === "score") {
+      return (b.score || 0) - (a.score || 0);
+    }
+
+    if (sortBy === "name") {
+      return a.filename.localeCompare(b.filename);
+    }
+
+    if (sortBy === "severity") {
+
+      const order = {
+        Critical: 4,
+        High: 3,
+        Medium: 2,
+        Low: 1,
+      };
+
+      return (
+        (order[b.severity] || 0) -
+        (order[a.severity] || 0)
+      );
+    }
+
+    return 0;
+
+  });
+
+  return result;
+
+}, [filesList, searchTerm, severityFilter, sortBy]);
 
   // 1. Radon Aggregations
   const projectRadon = useMemo(() => {
@@ -272,23 +325,31 @@ export default function ReviewResult() {
 
       {/* Tab Panels */}
       <div className="space-y-6">
+
         {/* TAB 1: OVERVIEW */}
         {activeTab === "overview" && (
           <div className="space-y-8 animate-fadeIn">
-            {/* Overview MetricCards */}
+
+            {/* ================= Day 9 Project Health Dashboard ================= */}
+            <DashboardCards dashboard={data.dashboard} />
+
+            {/* ================= Existing Overview Metrics ================= */}
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+
               <MetricCard
                 title="Total Files"
                 value={totalFiles}
                 icon={<FolderOpen size={20} />}
                 color="blue"
               />
+
               <MetricCard
                 title="Total LOC"
                 value={totalLinesOfCode}
                 icon={<FileCode size={20} />}
                 color="purple"
               />
+
               <MetricCard
                 title="Static Issues"
                 value={totalStaticIssues}
@@ -296,6 +357,7 @@ export default function ReviewResult() {
                 color="orange"
                 description={`${projectPylint.issues.length} Pylint | ${projectBandit.issues.length} Bandit`}
               />
+
               <MetricCard
                 title="Security Issues"
                 value={securityIssues}
@@ -303,6 +365,7 @@ export default function ReviewResult() {
                 color="red"
                 description={`${projectBandit.high} High | ${projectBandit.medium} Med | ${projectBandit.low} Low`}
               />
+
               <MetricCard
                 title="Complexity Grade"
                 value={complexityGrade}
@@ -310,6 +373,7 @@ export default function ReviewResult() {
                 color="yellow"
                 description={`Avg CC: ${projectRadon.cc.avg.toFixed(1)}`}
               />
+
               <MetricCard
                 title="Maintainability"
                 value={maintainabilityGrade}
@@ -317,12 +381,16 @@ export default function ReviewResult() {
                 color="green"
                 description={`Avg MI: ${projectRadon.mi.score.toFixed(1)}`}
               />
+
             </div>
 
-            {/* Project Summary Card */}
+            {/* ================= AI Project Summary ================= */}
             <SummaryCard summary={data.project_summary} />
+            <AnalyticsCharts dashboard={data.dashboard} />
+
           </div>
         )}
+
 
         {/* TAB 2: PYLINT */}
         {activeTab === "pylint" && (
@@ -517,19 +585,65 @@ export default function ReviewResult() {
         {/* TAB 5: FILES */}
         {activeTab === "files" && (
           <div className="space-y-6 animate-fadeIn">
+
             <div className="flex justify-between items-center bg-slate-900/30 p-4 border border-slate-800/80 rounded-xl">
               <h2 className="text-lg font-bold text-white flex items-center gap-2">
                 <FolderOpen size={20} className="text-green-500" />
-                Scanned Files ({filesList.length})
+                Scanned Files ({filteredFiles.length})
               </h2>
-              <span className="text-xs text-slate-400">Click Expand Details on any file card to view specific code warnings</span>
+
+              <span className="text-xs text-slate-400">
+                Click Expand Details on any file card to view specific code warnings
+              </span>
             </div>
-            
+
             <div className="space-y-4">
-              {filesList.map((file, idx) => (
-                <FileCard key={idx} file={file} />
+
+              {/* Search + Filter + Sort */}
+              <div className="flex flex-col md:flex-row gap-4 mb-6">
+
+                <input
+                  type="text"
+                  placeholder="🔍 Search files..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-white"
+                />
+
+                <select
+                  value={severityFilter}
+                  onChange={(e) => setSeverityFilter(e.target.value)}
+                  className="bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-white"
+                >
+                  <option>All</option>
+                  <option>Critical</option>
+                  <option>High</option>
+                  <option>Medium</option>
+                  <option>Low</option>
+                </select>
+
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-white"
+                >
+                  <option value="score">⭐ Highest AI Score</option>
+                  <option value="severity">🚨 Highest Severity</option>
+                  <option value="name">📄 File Name (A-Z)</option>
+                </select>
+
+              </div>
+
+              {/* File Cards */}
+              {filteredFiles.map((file, idx) => (
+                <FileCard
+                  key={idx}
+                  file={file}
+                />
               ))}
+
             </div>
+
           </div>
         )}
       </div>
