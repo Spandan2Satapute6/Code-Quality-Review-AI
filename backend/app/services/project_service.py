@@ -1,7 +1,9 @@
 import os
 import zipfile
 from werkzeug.utils import secure_filename
-
+from app.services.review_history_service import ReviewHistoryService
+from app.models.project import Project
+from app.extensions.database import db
 
 from app.services.code_scanner import CodeScanner
 from app.services.review_service import ReviewService

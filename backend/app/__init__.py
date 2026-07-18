@@ -6,8 +6,12 @@ from app.extensions.jwt import jwt
 from app.extensions.bcrypt import bcrypt
 from app.config.config import Config
 from app.extensions.migrate import migrate
+
 from app.routes.auth import auth_bp
 from app.routes.project import project_bp
+from app.routes.review import review_bp
+from app.routes.report import report_bp
+from app.routes.code import code_bp
 
 
 def create_app():
@@ -21,17 +25,23 @@ def create_app():
     jwt.init_app(app)
     bcrypt.init_app(app)
     CORS(app)
+
+    # Register Blueprints
     app.register_blueprint(auth_bp)
     app.register_blueprint(project_bp)
+    app.register_blueprint(review_bp)
+    app.register_blueprint(report_bp)
+    app.register_blueprint(code_bp)
 
     # Health Check Route
     @app.route("/")
     def home():
         return {
-            "message": "🚀 Codequality review  AI Backend is Running",
-            "status": "success"
+            "message": "🚀 CodeQuality Review AI Backend is Running",
+            "status": "success",
         }
-        # Import models so Flask-Migrate detects them
+
+    # Import models so Flask-Migrate detects them
     from app.models.user import User
     from app.models.project import Project
     from app.models.review import Review

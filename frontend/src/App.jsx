@@ -4,9 +4,14 @@ import DashboardLayout from "./layouts/DashboardLayout";
 
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
+
 import Dashboard from "./pages/dashboard/Dashboard";
+
 import ReviewResult from "./pages/review/ReviewResult";
+import PasteCode from "./pages/review/PasteCode";
+
 import ReviewHistory from "./pages/history/ReviewHistory";
+
 import Reports from "./pages/reports/Reports";
 import Settings from "./pages/settings/Settings";
 
@@ -30,9 +35,15 @@ export default function App() {
           }
         >
           <Route path="/dashboard" element={<Dashboard />} />
+
           <Route path="/review" element={<ReviewResult />} />
+
+          <Route path="/paste-review" element={<PasteCode />} />
+
           <Route path="/history" element={<ReviewHistory />} />
+
           <Route path="/reports" element={<Reports />} />
+
           <Route path="/settings" element={<Settings />} />
         </Route>
 
