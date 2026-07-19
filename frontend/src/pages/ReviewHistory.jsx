@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const API = "http://127.0.0.1:5000/api/v1";
 
 export default function ReviewHistory() {
+  const navigate = useNavigate();
+
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -20,7 +23,11 @@ export default function ReviewHistory() {
         },
       });
 
-      const data = await response.json();
+    const data = await response.json();
+
+console.log("Status:", response.status);
+console.log("API Response:", data);
+console.log("Reviews:", data.data);
 
       if (response.ok) {
         setReviews(data.data || []);
@@ -104,7 +111,10 @@ export default function ReviewHistory() {
       alert("Unable to download PDF");
     }
   };
-
+const filteredReviews = reviews.filter((review) =>
+  review.summary.toLowerCase().includes(search.toLowerCase()) ||
+  String(review.id).includes(search)
+);
   if (loading) {
     return (
       <div className="p-8 text-center text-lg">
@@ -119,8 +129,14 @@ export default function ReviewHistory() {
       <h1 className="text-3xl font-bold mb-6">
         Review History
       </h1>
-
-      {reviews.length === 0 ? (
+      <input
+  type="text"
+  placeholder="Search by ID or Summary..."
+  value={search}
+  onChange={(e) => setSearch(e.target.value)}
+  className="w-full p-3 border rounded-lg mb-6"
+/>
+{filteredReviews.length === 0 ? (
         <div className="text-center text-gray-500 text-lg">
           No Reviews Found
         </div>
@@ -141,7 +157,7 @@ export default function ReviewHistory() {
 
           <tbody>
 
-            {reviews.map((review) => (
+          {filteredReviews.map((review) => (
 
               <tr key={review.id} className="hover:bg-gray-100">
 
@@ -163,25 +179,32 @@ export default function ReviewHistory() {
 
                 <td className="border p-3">
 
-                  <div className="flex gap-2">
+  <div className="flex gap-2">
 
-                    <button
-                      onClick={() => downloadPDF(review.id)}
-                      className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded"
-                    >
-                      PDF
-                    </button>
+    <button
+      onClick={() => navigate(`/history/${review.id}`)}
+      className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded"
+    >
+      View
+    </button>
 
-                    <button
-                      onClick={() => deleteReview(review.id)}
-                      className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded"
-                    >
-                      Delete
-                    </button>
+    <button
+      onClick={() => downloadPDF(review.id)}
+      className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded"
+    >
+      PDF
+    </button>
 
-                  </div>
+    <button
+      onClick={() => deleteReview(review.id)}
+      className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded"
+    >
+      Delete
+    </button>
 
-                </td>
+  </div>
+
+</td>
 
               </tr>
 

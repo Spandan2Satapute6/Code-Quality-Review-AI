@@ -17,9 +17,9 @@ class AIReviewService:
         print("==============================")
 
         prompt = f"""
-You are a Senior Software Architect, Security Engineer, and Code Reviewer with 15+ years of experience.
+You are a Senior Software Architect, Security Engineer, Technical Writer, and Code Reviewer.
 
-Review the following source code thoroughly.
+Review the following source code.
 
 Filename:
 {file["filename"]}
@@ -40,55 +40,49 @@ Evaluate the code based on:
 9. Scalability
 10. Architecture
 
-IMPORTANT:
+Also generate:
+
+11. Module Documentation
+12. README
 
 Return ONLY valid JSON.
 
-Do NOT use markdown.
-
-Do NOT use ```.
-
-Do NOT explain anything outside JSON.
-
-Return exactly this format:
+Expected JSON format:
 
 {{
-    "score": 90,
+  "score": 90,
+  "severity": "Low",
+  "summary": "Overall summary",
 
-    "severity": "Low",
+  "issues": [],
+  "security": [],
+  "performance": [],
+  "maintainability": [],
+  "best_practices": [],
+  "recommendations": [],
+  "suggestions": [],
+  "verdict": "Good",
 
-    "summary": "Short summary",
+  "module_documentation": {{
+    "module_name": "",
+    "purpose": "",
+    "main_components": [],
+    "dependencies": [],
+    "workflow": "",
+    "usage": "",
+    "summary": ""
+  }},
 
-    "issues": [
-        "Issue 1",
-        "Issue 2"
-    ],
-
-    "security": [
-        "Security finding"
-    ],
-
-    "performance": [
-        "Performance finding"
-    ],
-
-    "maintainability": [
-        "Maintainability finding"
-    ],
-
-    "best_practices": [
-        "Best practice"
-    ],
-
-    "recommendations": [
-        "Recommendation"
-    ],
-
-    "suggestions": [
-        "Suggestion"
-    ],
-
-    "verdict": "Good"
+  "readme": {{
+    "title": "",
+    "overview": "",
+    "features": [],
+    "installation": "",
+    "usage": "",
+    "folder_structure": "",
+    "dependencies": [],
+    "license": "MIT"
+  }}
 }}
 """
 
@@ -103,7 +97,7 @@ Return exactly this format:
                     }
                 ],
                 temperature=0,
-                max_tokens=1500
+                max_tokens=2000
             )
 
             result = response.choices[0].message.content.strip()
@@ -134,5 +128,26 @@ Return exactly this format:
                 "best_practices": [],
                 "recommendations": [],
                 "suggestions": [],
-                "verdict": "Failed"
+                "verdict": "Failed",
+
+                "module_documentation": {
+                    "module_name": "",
+                    "purpose": "",
+                    "main_components": [],
+                    "dependencies": [],
+                    "workflow": "",
+                    "usage": "",
+                    "summary": ""
+                },
+
+                "readme": {
+                    "title": "",
+                    "overview": "",
+                    "features": [],
+                    "installation": "",
+                    "usage": "",
+                    "folder_structure": "",
+                    "dependencies": [],
+                    "license": "MIT"
+                }
             }

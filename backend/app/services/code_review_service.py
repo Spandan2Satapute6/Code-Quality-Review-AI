@@ -7,24 +7,22 @@ class CodeReviewService:
 
     @staticmethod
     def review_code(code, language="python"):
-        """
-        Review pasted source code using the existing AI pipeline.
-        """
 
         files = [
             {
                 "filename": f"main.{language}",
                 "content": code,
+                "language": language,
             }
         ]
 
-        # Static analysis + AI review
-        review = ReviewService.review_project(files)
+        review = ReviewService.review_project(
+            files,
+            language=language,
+        )
 
-        # AI-generated project summary
         project_summary = ProjectSummaryService.generate_summary(review)
 
-        # Build the final report
         report = ReportAggregatorService.build_report(
             project_name="Pasted Code",
             review=review,
@@ -32,3 +30,4 @@ class CodeReviewService:
         )
 
         return report
+    

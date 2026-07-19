@@ -45,6 +45,7 @@ class Project(db.Model):
 
     def to_dict(self):
         return {
+            
             "id": self.id,
             "user_id": self.user_id,
             "project_name": self.project_name,

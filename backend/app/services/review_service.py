@@ -7,7 +7,7 @@ from app.services.radon_service import RadonService
 class ReviewService:
 
     @staticmethod
-    def review_project(files):
+    def review_project(files, language="python"):
 
         results = []
 
@@ -17,17 +17,33 @@ class ReviewService:
 
             ai_review = AIReviewService.review_file(file)
 
-            pylint_review = PylintService.analyze_code(file["content"])
+            # Default values for non-Python languages
+            pylint_review = {
+                "status": "Not Applicable",
+                "message": "Pylint supports only Python."
+            }
 
-            bandit_review = BanditService.analyze_code(file["content"])
+            bandit_review = {
+                "status": "Not Applicable",
+                "message": "Bandit supports only Python."
+            }
 
-            radon_review = RadonService.analyze_code(file["content"])
+            radon_review = {
+                "status": "Not Applicable",
+                "message": "Radon supports only Python."
+            }
+
+            # Run static analysis only for Python
+            if language.lower() == "python":
+                pylint_review = PylintService.analyze_code(file["content"])
+                bandit_review = BanditService.analyze_code(file["content"])
+                radon_review = RadonService.analyze_code(file["content"])
 
             print("Finished:", file["filename"])
 
             results.append({
                 "filename": file["filename"],
-                "path": file["path"],
+                "path": file.get("path", ""),
                 "lines": len(file["content"].splitlines()),
 
                 "score": ai_review.get("score", 0),
@@ -36,7 +52,7 @@ class ReviewService:
 
                 "pylint": pylint_review,
                 "bandit": bandit_review,
-                "radon": radon_review
+                "radon": radon_review,
             })
 
         return results

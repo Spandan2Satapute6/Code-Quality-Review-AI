@@ -1,6 +1,7 @@
 import os
 import zipfile
 from werkzeug.utils import secure_filename
+
 from app.services.review_history_service import ReviewHistoryService
 from app.models.project import Project
 from app.extensions.database import db
@@ -17,7 +18,7 @@ class ProjectService:
     EXTRACT_FOLDER = "extracted"
 
     @staticmethod
-    def upload_project(file):
+    def upload_project(file, user_id):
 
         print("\n========== PROJECT UPLOAD START ==========")
 
@@ -71,23 +72,43 @@ class ProjectService:
             files = CodeScanner.scan_project(extract_folder)
 
             print("Running Static Analysis...")
-
             review = ReviewService.review_project(files)
 
             print("Generating AI Project Summary...")
-
             project_summary = ProjectSummaryService.generate_summary(review)
 
             print("Building Final Report...")
-
             report = ReportAggregatorService.build_report(
                 project_name=filename,
                 review=review,
                 project_summary=project_summary
             )
 
+            # Save Project
+            project = Project(
+                user_id=user_id,
+                project_name=filename,
+                upload_type="zip",
+                language="Python",
+            )
+
+            print("Saving project...")
+
+            db.session.add(project)
+            db.session.commit()
+
+            print("Project Saved Successfully")
+            print("Project ID:", project.id)
+
+            # Save Review History
+            ReviewHistoryService.save_review(
+                project.id,
+                report,
+            )
+
         except Exception as e:
-            print("Scanner Error:", str(e))
+            db.session.rollback()
+            print("Scanner/Database Error:", str(e))
             return None, str(e)
 
         print("========== PROJECT UPLOAD SUCCESS ==========\n")

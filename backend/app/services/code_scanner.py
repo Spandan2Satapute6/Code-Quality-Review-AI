@@ -11,6 +11,7 @@ class CodeScanner:
     # Files to analyze
     ALLOWED_EXTENSIONS = (
         ".py",
+        ".js",
     )
 
     # Directories to ignore
@@ -68,7 +69,7 @@ class CodeScanner:
                     files.append({
                         "filename": filename,
                         "path": os.path.relpath(file_path, project_path),
-                        "content": content
+                        "content": content,
                     })
 
                 except Exception as e:
